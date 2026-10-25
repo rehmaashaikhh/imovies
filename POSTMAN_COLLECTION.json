@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "IMovies Movie Ticket Booking API",
+    "description": "Comprehensive Postman Collection for testing all IMovies REST APIs including Authentication, Movies, Theatres, Shows, Real-time Seat Booking, and Admin Dashboard.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Student Evaluator\",\n  \"email\": \"evaluator@college.edu\",\n  \"password\": \"College@123\",\n  \"phone\": \"+1-555-0199\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@imovies.com\",\n  \"password\": \"User@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@imovies.com\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "Get All Movies",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/movies", "host": ["{{baseUrl}}"], "path": ["api", "movies"] }
+          }
+        },
+        {
+          "name": "Get Movie By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/movies/mov_dune2", "host": ["{{baseUrl}}"], "path": ["api", "movies", "mov_dune2"] }
+          }
+        },
+        {
+          "name": "Create Movie (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cyber Odyssey 2099\",\n  \"description\": \"In a futuristic metropolis, a cyber detective uncovers an artificial mind.\",\n  \"genre\": [\"Sci-Fi\", \"Action\"],\n  \"language\": \"English\",\n  \"duration\": 135,\n  \"releaseDate\": \"2026-11-20\",\n  \"posterUrl\": \"https://images.unsplash.com/photo-1509198397868-475647b2a1e5\",\n  \"bannerUrl\": \"https://images.unsplash.com/photo-1509198397868-475647b2a1e5\",\n  \"director\": \"Alex Garland\",\n  \"rating\": 8.9,\n  \"status\": \"now-showing\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/movies", "host": ["{{baseUrl}}"], "path": ["api", "movies"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shows & Seats",
+      "item": [
+        {
+          "name": "Get Shows for Movie and Date",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/shows?movieId=mov_dune2", "host": ["{{baseUrl}}"], "path": ["api", "shows"], "query": [{ "key": "movieId", "value": "mov_dune2" }] }
+          }
+        },
+        {
+          "name": "Get Real-time Seat Availability",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/shows/shw_1/seats", "host": ["{{baseUrl}}"], "path": ["api", "shows", "shw_1", "seats"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Ticket Booking (Atomic)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"showId\": \"shw_1\",\n  \"selectedSeats\": [\"C1\", \"C2\"],\n  \"paymentMethod\": \"Credit Card\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/bookings", "host": ["{{baseUrl}}"], "path": ["api", "bookings"] }
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/bookings/my", "host": ["{{baseUrl}}"], "path": ["api", "bookings", "my"] }
+          }
+        },
+        {
+          "name": "Cancel Booking and Release Seats",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/bookings/bk_sample_01/cancel", "host": ["{{baseUrl}}"], "path": ["api", "bookings", "bk_sample_01", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Admin Metrics Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "admin", "dashboard"] }
+          }
+        },
+        {
+          "name": "Reset Seed Data",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/reset-database", "host": ["{{baseUrl}}"], "path": ["api", "admin", "reset-database"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" }
+  ]
+}
