@@ -123,6 +123,7 @@ For rapid evaluation, grading, and presentation, default accounts are pre-seeded
 ```
 imovies/
 ├── .env.example              # Environment configuration template
+├── FSD.md                    # Comprehensive Functional Software Design (FSD) document
 ├── COLLEGE_DOCUMENTATION.md  # Detailed B.Tech viva & architecture dossier
 ├── POSTMAN_COLLECTION.json   # Postman collection for REST API testing
 ├── README.md                 # Complete setup and user guide
