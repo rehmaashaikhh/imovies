@@ -1,5 +1,5 @@
-import React from 'react';
-import { Star, Clock, Play, Ticket } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, Clock, Play, Ticket, Film } from 'lucide-react';
 import { Movie } from '../types';
 
 interface MovieCardProps {
@@ -15,65 +15,103 @@ export const MovieCard: React.FC<MovieCardProps> = ({
   onBookTickets,
   onWatchTrailer,
 }) => {
+  const [imageError, setImageError] = useState(false);
+
   const formatDuration = (mins: number) => {
+    if (!mins || isNaN(mins)) return '120m';
     const hours = Math.floor(mins / 60);
     const m = mins % 60;
+    if (hours === 0) return `${m}m`;
     return `${hours}h ${m}m`;
   };
 
   const isUpcoming = movie.status === 'upcoming';
+  const ageRating = movie.ageRating || movie.certificate || 'UA';
+
+  // Specific color accents for Indian / International censor board ratings
+  const getBadgeStyle = (rating: string) => {
+    const r = rating.trim().toUpperCase();
+    if (r === 'A' || r === '18+' || r === 'R') {
+      return 'bg-red-950/80 text-rose-300 border-rose-500/50';
+    }
+    if (r === 'U' || r === 'G') {
+      return 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50';
+    }
+    // Default UA / PG-13
+    return 'bg-amber-950/80 text-amber-300 border-amber-500/50';
+  };
+
+  const fallbackPoster = 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=800&auto=format&fit=crop';
 
   return (
-    <div className="group relative bg-[#13161a] border border-zinc-800/80 rounded-xl overflow-hidden hover:border-zinc-700 hover:shadow-xl hover:shadow-black/50 transition-all duration-300 flex flex-col">
+    <div className="group relative bg-[#12151b] border border-zinc-800/80 rounded-2xl overflow-hidden hover:border-zinc-700 hover:shadow-2xl hover:shadow-black/60 transition-all duration-300 flex flex-col">
       {/* Poster Container */}
-      <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-900 cursor-pointer" onClick={() => onSelectMovie(movie)}>
+      <div
+        className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-950 cursor-pointer select-none"
+        onClick={() => onSelectMovie(movie)}
+      >
         <img
-          src={movie.posterUrl}
+          src={imageError ? fallbackPoster : (movie.posterUrl || fallbackPoster)}
           alt={movie.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={() => setImageError(true)}
+          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#13161a] via-transparent to-transparent opacity-90" />
 
-        {/* Certificate Badge */}
-        {movie.certificate && (
-          <div className="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-md border border-white/10 text-[10px] font-bold text-zinc-300 px-2 py-0.5 rounded">
-            {movie.certificate}
-          </div>
-        )}
+        {/* Ambient Gradient Shadows */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#12151b] via-transparent to-black/30 opacity-90 pointer-events-none" />
 
-        {/* Rating Badge */}
-        <div className="absolute top-2.5 right-2.5 bg-black/75 backdrop-blur-md border border-amber-500/30 text-amber-400 font-bold text-xs px-2 py-1 rounded flex items-center gap-1 shadow-md">
-          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          <span>{movie.rating.toFixed(1)}</span>
+        {/* Certificate / Age Rating Badge */}
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+          <span
+            className={`px-2 py-0.5 rounded-md backdrop-blur-md border text-[10px] font-black tracking-wider uppercase shadow-md ${getBadgeStyle(
+              ageRating
+            )}`}
+          >
+            {ageRating}
+          </span>
+          {movie.language && (
+            <span className="bg-black/70 backdrop-blur-md border border-white/10 text-[10px] font-semibold text-zinc-300 px-1.5 py-0.5 rounded-md">
+              {movie.language}
+            </span>
+          )}
         </div>
 
-        {/* Trailer Play Overlay Button */}
+        {/* Rating Badge */}
+        <div className="absolute top-3 right-3 z-10 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 font-bold text-xs px-2 py-1 rounded-lg flex items-center gap-1 shadow-md">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+          <span>{(movie.rating || 8.0).toFixed(1)}</span>
+        </div>
+
+        {/* Watch Trailer Overlay Button */}
         {movie.trailerUrl && onWatchTrailer && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onWatchTrailer(movie.trailerUrl!, movie.title);
-            }}
-            className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-rose-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:scale-110 transition-all duration-200 shadow-lg shadow-rose-950/60"
-            title="Watch Trailer"
-          >
-            <Play className="w-5 h-5 fill-white ml-0.5" />
-          </button>
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onWatchTrailer(movie.trailerUrl!, movie.title);
+              }}
+              className="w-13 h-13 rounded-full bg-rose-600/90 text-white flex items-center justify-center hover:scale-110 hover:bg-rose-500 transition-all duration-200 shadow-xl shadow-rose-950/70 border border-white/20 group/btn"
+              title={`Watch ${movie.title} Trailer`}
+            >
+              <Play className="w-5 h-5 fill-white ml-0.5 group-hover/btn:scale-110 transition-transform" />
+            </button>
+          </div>
         )}
       </div>
 
       {/* Info Content */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
         <div>
-          {/* Metadata line: zero-pill style with clean typography */}
+          {/* Metadata line: Duration, Language & Status */}
           <div className="flex items-center gap-2 text-xs text-zinc-400 mb-1.5">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-zinc-500" />
+            <span className="flex items-center gap-1 text-zinc-300 font-medium">
+              <Clock className="w-3 h-3 text-rose-500" />
               {formatDuration(movie.duration)}
             </span>
             <span aria-hidden="true" className="text-zinc-600">·</span>
-            <span>{movie.language}</span>
+            <span className="line-clamp-1 text-zinc-400">{movie.director}</span>
           </div>
 
           {/* Title */}
@@ -87,30 +125,33 @@ export const MovieCard: React.FC<MovieCardProps> = ({
 
           {/* Genre list */}
           <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
-            {movie.genre.join(', ')}
+            {Array.isArray(movie.genre) ? movie.genre.join(', ') : movie.genre}
           </p>
         </div>
 
-        {/* Actions */}
-        <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center gap-2">
+        {/* Action Buttons */}
+        <div className="pt-2 border-t border-zinc-800/80 flex items-center gap-2">
           {isUpcoming ? (
             <button
+              type="button"
               onClick={() => onSelectMovie(movie)}
-              className="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors text-center"
+              className="w-full py-2 px-3 text-xs font-semibold rounded-xl bg-zinc-800/80 hover:bg-zinc-700 text-zinc-200 transition-colors text-center border border-zinc-700/60"
             >
-              View Synopsis & Cast
+              Synopsis & Trailer
             </button>
           ) : (
             <>
               <button
+                type="button"
                 onClick={() => onSelectMovie(movie)}
-                className="flex-1 py-2 px-2 text-xs font-medium rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition-colors text-center"
+                className="flex-1 py-2 px-2 text-xs font-medium rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 hover:border-zinc-700 transition-colors text-center"
               >
                 Details
               </button>
               <button
+                type="button"
                 onClick={() => onBookTickets(movie)}
-                className="flex-1 py-2 px-2 text-xs font-semibold rounded-lg bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-md shadow-rose-950/40 transition-all flex items-center justify-center gap-1.5"
+                className="flex-1 py-2 px-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-md shadow-rose-950/40 transition-all flex items-center justify-center gap-1.5 hover:scale-[1.02]"
               >
                 <Ticket className="w-3.5 h-3.5" />
                 <span>Book</span>

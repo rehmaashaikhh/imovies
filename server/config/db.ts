@@ -3,18 +3,24 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// The exact assignment connection string for MongoDB local instance
-export const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/Imovies';
+// The MongoDB connection string - supports MONGO_URI and MONGODB_URI
+export const MONGO_URI =
+  process.env.MONGO_URI ||
+  process.env.MONGODB_URI ||
+  'mongodb+srv://rehmaashaikh_db_user:uXWoxP95CgEhkHCF@imovies.bylwhba.mongodb.net/';
+
+export const MONGODB_URI = MONGO_URI;
 
 let isConnected = false;
 let isUsingFallbackStore = false;
 
 /**
- * Standard Mongoose connection implementation as specified in the assignment:
+ * Standard Mongoose connection implementation:
  * 
  * const mongoose = require('mongoose');
  * 
- * mongoose.connect('mongodb://127.0.0.1:27017/Imovies', {
+ * mongoose.connect(process.env.MONGO_URI, {
+ *   dbName: 'Imovies',
  *   useNewUrlParser: true,
  *   useUnifiedTopology: true
  * })
@@ -27,25 +33,26 @@ export async function connectDB(): Promise<boolean> {
   try {
     mongoose.set('strictQuery', false);
 
-    await mongoose.connect(MONGODB_URI, {
-      // Assignment options
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 2000,
-      connectTimeoutMS: 2000,
-    } as any)
-    .then(() => {
-      isConnected = true;
-      isUsingFallbackStore = false;
-      console.log('Connected to MongoDB');
-    })
-    .catch((err: any) => {
-      console.error('MongoDB connection error:', err);
-      throw err;
-    });
+    const options: any = {
+      dbName: 'Imovies',
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+    };
+
+    await mongoose.connect(MONGO_URI, options)
+      .then(() => {
+        isConnected = true;
+        isUsingFallbackStore = false;
+        console.log('✅ Connected to MongoDB Atlas successfully!');
+      })
+      .catch((err: any) => {
+        console.error('MongoDB connection error:', err);
+        throw err;
+      });
 
     return true;
   } catch (err: any) {
+    console.warn('⚠️ MongoDB Atlas connection notice:', err.message);
     console.log('🚀 Running IMovies High-Performance Persistence Engine for local sandbox preview.');
     isConnected = false;
     isUsingFallbackStore = true;

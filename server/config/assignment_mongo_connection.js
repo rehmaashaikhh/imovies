@@ -10,14 +10,11 @@
  *    Mongoose is a powerful Object Data Modeling (ODM) tool that helps interact
  *    with MongoDB using JavaScript objects.
  * 
- * 2. mongoose.connect('mongodb://127.0.0.1:27017/Imovies', { ... })
- *    mongodb://: Specifies the MongoDB protocol.
- *    127.0.0.1: Localhost IP address – means the database is running on your local machine.
- *    27017: Default port for MongoDB.
- *    Imovies: Name of the database you want to use.
- *    (If this database doesn't exist, MongoDB will create it once data is inserted.)
- *    useNewUrlParser: true: Uses MongoDB's updated URL string parser.
- *    useUnifiedTopology: true: Enables the new connection engine, which improves connection stability and performance.
+ * 2. mongoose.connect(MONGO_URI, { ... })
+ *    mongodb+srv://: Specifies the MongoDB SRV connection protocol for MongoDB Atlas clusters.
+ *    rehmaashaikh_db_user: Authenticated database user.
+ *    imovies.bylwhba.mongodb.net: Dedicated MongoDB Atlas cluster address.
+ *    dbName: 'Imovies': Name of the database to store movies, theatres, shows, and bookings.
  * 
  * 3. .then(() => console.log('Connected to MongoDB'))
  *    If the connection is successful, this code runs.
@@ -29,12 +26,18 @@
  */
 
 const mongoose = require('mongoose');
+require('dotenv').config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/Imovies';
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  process.env.MONGODB_URI ||
+  'mongodb+srv://rehmaashaikh_db_user:uXWoxP95CgEhkHCF@imovies.bylwhba.mongodb.net/';
 
-mongoose.connect(MONGODB_URI, {
+mongoose.connect(MONGO_URI, {
+  dbName: 'Imovies',
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000
 })
 .then(() => console.log('Connected to MongoDB'))
 .catch((err) => console.error('MongoDB connection error:', err));

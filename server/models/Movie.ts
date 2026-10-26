@@ -13,7 +13,8 @@ export interface IMovie extends Document {
   director: string;
   rating: number; // 0 to 10
   trailerUrl?: string;
-  certificate?: string; // e.g. PG-13, R, U/A
+  certificate?: string; // e.g. UA, A, U, PG-13, R
+  ageRating?: string; // e.g. UA, A, U
   status: 'now-showing' | 'upcoming';
   createdAt: Date;
   updatedAt: Date;
@@ -80,7 +81,11 @@ export const MovieSchema = new Schema<IMovie>(
     },
     certificate: {
       type: String,
-      default: 'PG-13',
+      default: 'UA',
+    },
+    ageRating: {
+      type: String,
+      default: 'UA',
     },
     status: {
       type: String,

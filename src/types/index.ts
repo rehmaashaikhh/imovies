@@ -22,6 +22,7 @@ export interface Movie {
   rating: number;
   trailerUrl?: string;
   certificate?: string;
+  ageRating?: string;
   status: 'now-showing' | 'upcoming';
   createdAt?: string;
 }

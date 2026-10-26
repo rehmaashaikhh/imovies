@@ -29,6 +29,7 @@ export interface MovieDoc {
   rating: number;
   trailerUrl?: string;
   certificate?: string;
+  ageRating?: string;
   status: 'now-showing' | 'upcoming';
   createdAt: string;
   updatedAt: string;
